@@ -1,0 +1,16 @@
+Dado un DataFrame de pandas con columnas numéricas que puede contener valores
+duplicados y valores faltantes (NaN), escribe una función llamada
+limpiar_y_resumir(df, umbral_nan) que realice lo siguiente:
+
+1. Elimine las filas duplicadas.
+2. Elimine las columnas donde el porcentaje de valores NaN sea mayor o igual
+   a umbral_nan (valor entre 0 y 1, e.g. 0.4 significa 40%).
+3. Rellene los NaN restantes con la mediana de cada columna.
+4. Devuelva una tupla con:
+   - El DataFrame limpio (después de los tres pasos anteriores).
+   - Un diccionario donde las claves son los nombres de las columnas del
+     DataFrame resultante y los valores son las medianas usadas para rellenar.
+
+El nombre de la función debe ser exactamente: limpiar_y_resumir
+Argumentos: df (DataFrame de pandas), umbral_nan (float entre 0 y 1)
+Retorno: tupla (df_limpio, dict_medianas)
