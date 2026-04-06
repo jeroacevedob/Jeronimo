@@ -1,55 +1,60 @@
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error
+from sklearn.datasets import make_classification
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix
 import random
 
-def generar_caso_de_uso_evaluar_regresion():
-    """
-    Genera un caso de prueba aleatorio para la función evaluar_regresion(X, y, test_size).
-    Retorna: (input_data, output_data)
-      - input_data: dict con claves 'X', 'y', 'test_size'
-      - output_data: tupla (r2, mae) de floats redondeados a 4 decimales
-    """
+def generar_caso_de_uso_evaluar_con_confusion_acumulada():
     random.seed(None)
-    n_samples = random.randint(50, 150)
-    n_features = random.randint(1, 5)
-    test_size = round(random.uniform(0.15, 0.4), 2)
+    n_samples = random.randint(80, 200)
+    n_classes = random.randint(2, 4)
+    n_folds = random.randint(3, 5)
 
-    X = np.random.randn(n_samples, n_features)
-    coef = np.random.randn(n_features)
-    noise = np.random.randn(n_samples) * random.uniform(0.1, 2.0)
-    y = X @ coef + noise
+    X, y = make_classification(
+        n_samples=n_samples,
+        n_features=random.randint(4, 8),
+        n_informative=3,
+        n_classes=n_classes,
+        n_clusters_per_class=1,
+        random_state=random.randint(0, 100)
+    )
 
-    input_data = {
-        'X': X.copy(),
-        'y': y.copy(),
-        'test_size': test_size
-    }
+    input_data = {'X': X.copy(), 'y': y.copy(), 'n_folds': n_folds}
 
     # Ground truth
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=42
-    )
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    accuracies = []
+    confusion_total = np.zeros((n_classes, n_classes), dtype=int)
 
-    r2  = round(float(r2_score(y_test, y_pred)), 4)
-    mae = round(float(mean_absolute_error(y_test, y_pred)), 4)
+    for train_idx, test_idx in skf.split(X, y):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
 
-    output_data = (r2, mae)
+        scaler = StandardScaler()
+        X_train_s = scaler.fit_transform(X_train)
+        X_test_s = scaler.transform(X_test)
+
+        clf = RandomForestClassifier(n_estimators=50, random_state=42)
+        clf.fit(X_train_s, y_train)
+        y_pred = clf.predict(X_test_s)
+
+        accuracies.append(accuracy_score(y_test, y_pred))
+        confusion_total += confusion_matrix(y_test, y_pred, labels=np.arange(n_classes))
+
+    output_data = {
+        'accuracy_promedio': round(float(np.mean(accuracies)), 4),
+        'confusion_acumulada': confusion_total
+    }
 
     return input_data, output_data
 
 
 if __name__ == "__main__":
-    entrada, salida = generar_caso_de_uso_evaluar_regresion()
+    entrada, salida = generar_caso_de_uso_evaluar_con_confusion_acumulada()
     print("=== INPUT ===")
-    print(f"X shape: {entrada['X'].shape}")
-    print(f"y shape: {entrada['y'].shape}")
-    print(f"test_size: {entrada['test_size']}")
+    print(f"X shape: {entrada['X'].shape}, n_folds: {entrada['n_folds']}")
     print("\n=== OUTPUT ===")
-    r2, mae = salida
-    print(f"R2: {r2}")
-    print(f"MAE: {mae}")
+    print(f"Accuracy promedio: {salida['accuracy_promedio']}")
+    print("Confusion acumulada:\n", salida['confusion_acumulada'])
