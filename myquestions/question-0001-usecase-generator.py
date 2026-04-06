@@ -43,7 +43,3 @@ if __name__ == "__main__":
     print(entrada['df'].head())
     print("\n=== OUTPUT ===")
     print(salida)
-    print(f"label_col: {entrada['label_col']}")
-    print(entrada['df'].head())
-    print("\n=== OUTPUT (predicciones del modelo sobre X_train) ===")
-    print(salida)
