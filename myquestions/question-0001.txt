@@ -1,16 +1,24 @@
-Dado un DataFrame de pandas con columnas numéricas y una columna categórica
-llamada 'label', escribe una función llamada entrenar_clasificador(df, label_col)
-que realice lo siguiente:
+El Problema:
+Tienes un DataFrame con registros de empleados que incluye columnas:
+'empleado_id' (int), 'departamento' (str), 'fecha_ingreso' (str, formato YYYY-MM-DD),
+'salario' (float) y 'activo' (bool, True si aún trabaja).
 
-1. Separe las características numéricas (X) de la variable objetivo (y),
-   definida por label_col.
-2. Elimine filas donde y sea NaN.
-3. Impute los valores faltantes en X usando la mediana de cada columna
-   (usando SimpleImputer de sklearn con strategy='median').
-4. Entrene un clasificador KNeighborsClassifier(n_neighbors=3) de sklearn
-   sobre los datos procesados.
-5. Devuelva el modelo entrenado (objeto KNeighborsClassifier ya ajustado).
+Tu Misión:
+Escribe una función llamada calcular_antiguedad_salarial(df) que:
 
-El nombre de la función debe ser exactamente: entrenar_clasificador
-Argumentos: df (DataFrame de pandas), label_col (string con el nombre de la columna objetivo)
-Retorno: modelo KNeighborsClassifier entrenado
+1. Convierta 'fecha_ingreso' a datetime.
+2. Calcule una columna 'antiguedad_anios' como la diferencia en años entre
+   hoy (pd.Timestamp.today()) y la fecha de ingreso (usa .dt.days / 365.25),
+   redondeada a 2 decimales.
+3. Filtre únicamente los empleados activos (activo == True).
+4. Agrupe por 'departamento' y calcule:
+   - 'salario_promedio': promedio de salario (redondeado a 2 decimales)
+   - 'antiguedad_promedio': promedio de antigüedad (redondeado a 2 decimales)
+   - 'n_empleados': cantidad de empleados activos
+5. Devuelva el DataFrame resultante ordenado por 'salario_promedio' descendente,
+   con el índice reiniciado.
+
+El nombre de la función debe ser exactamente: calcular_antiguedad_salarial
+Argumentos: df (DataFrame de pandas)
+Retorno: pd.DataFrame con columnas [departamento, salario_promedio,
+         antiguedad_promedio, n_empleados]
