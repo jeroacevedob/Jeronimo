@@ -2,62 +2,48 @@ import pandas as pd
 import numpy as np
 import random
 
-def generar_caso_de_uso_limpiar_y_resumir():
-    """
-    Genera un caso de prueba aleatorio para la función limpiar_y_resumir(df, umbral_nan).
-    Retorna: (input_data, output_data)
-      - input_data: dict con claves 'df' y 'umbral_nan'
-      - output_data: tupla (df_limpio, dict_medianas)
-    """
+def generar_caso_de_uso_calcular_saldo_acumulado():
     random.seed(None)
-    n_rows = random.randint(15, 40)
-    n_cols = random.randint(3, 6)
+    n_cuentas = random.randint(2, 4)
+    cuentas = [f'CUENTA-{i:03d}' for i in range(1, n_cuentas + 1)]
+    cuenta_elegida = random.choice(cuentas)
 
-    cols = [f'col_{i}' for i in range(n_cols)]
-    data = np.random.randn(n_rows, n_cols) * random.randint(1, 10)
-    df = pd.DataFrame(data, columns=cols)
+    n_total = random.randint(20, 50)
+    fechas = pd.date_range(start='2023-01-01', periods=n_total, freq='5D')
+    fechas_shuffle = list(fechas)
+    random.shuffle(fechas_shuffle)
 
-    # Introducir NaN con distintas tasas por columna
-    for col in cols:
-        nan_rate = random.uniform(0.0, 0.6)
-        mask = np.random.choice([True, False], size=n_rows, p=[nan_rate, 1 - nan_rate])
-        df.loc[mask, col] = np.nan
+    tipos = np.random.choice(['debito', 'credito'], n_total)
+    montos = np.round(np.random.uniform(10, 5000, n_total), 2)
+    cuentas_col = [random.choice(cuentas) for _ in range(n_total)]
+    # Garantizar que la cuenta elegida tenga al menos 5 transacciones
+    for i in range(5):
+        cuentas_col[i] = cuenta_elegida
 
-    # Duplicar algunas filas (~15%)
-    n_dupes = max(1, int(n_rows * 0.15))
-    dupe_indices = np.random.choice(df.index, size=n_dupes, replace=False)
-    df = pd.concat([df, df.loc[dupe_indices]], ignore_index=True)
+    df = pd.DataFrame({
+        'cuenta_id': cuentas_col,
+        'fecha': [f.strftime('%Y-%m-%d') for f in fechas_shuffle],
+        'tipo': tipos,
+        'monto': montos
+    })
 
-    umbral_nan = round(random.uniform(0.2, 0.5), 2)
-
-    input_data = {
-        'df': df.copy(),
-        'umbral_nan': umbral_nan
-    }
+    input_data = {'df': df.copy(), 'cuenta_id': cuenta_elegida}
 
     # Ground truth
     df_gt = df.copy()
-    df_gt = df_gt.drop_duplicates()
-
-    nan_rate_cols = df_gt.isna().mean()
-    cols_to_keep = nan_rate_cols[nan_rate_cols < umbral_nan].index.tolist()
-    df_gt = df_gt[cols_to_keep]
-
-    medianas = {col: df_gt[col].median() for col in df_gt.columns}
-    df_gt = df_gt.fillna(medianas)
-
-    output_data = (df_gt.reset_index(drop=True), medianas)
+    df_gt['fecha'] = pd.to_datetime(df_gt['fecha'])
+    df_gt = df_gt[df_gt['cuenta_id'] == cuenta_elegida].sort_values('fecha').reset_index(drop=True)
+    df_gt['monto_neto'] = np.where(df_gt['tipo'] == 'credito', df_gt['monto'], -df_gt['monto'])
+    df_gt['saldo_acumulado'] = df_gt['monto_neto'].cumsum()
+    output_data = df_gt[['fecha', 'tipo', 'monto', 'monto_neto', 'saldo_acumulado']].reset_index(drop=True)
 
     return input_data, output_data
 
 
 if __name__ == "__main__":
-    entrada, salida = generar_caso_de_uso_limpiar_y_resumir()
+    entrada, salida = generar_caso_de_uso_calcular_saldo_acumulado()
     print("=== INPUT ===")
-    print(f"umbral_nan: {entrada['umbral_nan']}")
+    print(f"cuenta_id: {entrada['cuenta_id']}")
     print(entrada['df'].head())
     print("\n=== OUTPUT ===")
-    df_limpio, medianas = salida
-    print("DataFrame limpio:")
-    print(df_limpio.head())
-    print("Medianas:", medianas)
+    print(salida)
