@@ -1,19 +1,27 @@
-Escribe una función llamada evaluar_regresion(X, y, test_size) que realice
-lo siguiente:
+El Problema:
+Tienes una matriz de características X (numpy array) y un vector objetivo y
+(numpy array de clasificación multiclase). Quieres evaluar un clasificador
+usando validación cruzada estratificada y obtener no solo el accuracy promedio
+sino también la matriz de confusión acumulada sobre todos los folds.
 
-1. Divida los datos en entrenamiento y prueba usando train_test_split de sklearn
-   con test_size=test_size y random_state=42.
-2. Entrene un modelo LinearRegression de sklearn con los datos de entrenamiento.
-3. Realice predicciones sobre el conjunto de prueba.
-4. Calcule el R2 score (usando r2_score de sklearn.metrics) y el
-   Mean Absolute Error (usando mean_absolute_error de sklearn.metrics)
-   sobre las predicciones del conjunto de prueba.
-5. Devuelva una tupla con (r2, mae) donde ambos son floats redondeados
-   a 4 decimales.
+Tu Misión:
+Escribe una función llamada evaluar_con_confusion_acumulada(X, y, n_folds) que:
 
-El nombre de la función debe ser exactamente: evaluar_regresion
+1. Use StratifiedKFold de sklearn con n_splits=n_folds y shuffle=True,
+   random_state=42.
+2. En cada fold:
+   - Escale X con StandardScaler (fit solo sobre train, transform en ambos).
+   - Entrene un RandomForestClassifier(n_estimators=50, random_state=42).
+   - Calcule el accuracy sobre el conjunto de prueba.
+   - Acumule la matriz de confusión (suma de todas las matrices de todos los folds).
+3. Devuelva un diccionario con:
+   - 'accuracy_promedio': float redondeado a 4 decimales
+   - 'confusion_acumulada': numpy array (n_clases x n_clases) con la suma de
+     todas las matrices de confusión de los folds
+
+El nombre de la función debe ser exactamente: evaluar_con_confusion_acumulada
 Argumentos:
-  - X: array de numpy de shape (n_samples, n_features)
-  - y: array de numpy de shape (n_samples,)
-  - test_size: float entre 0.1 y 0.5
-Retorno: tupla (r2, mae) de floats
+  - X: numpy array (n_samples, n_features)
+  - y: numpy array (n_samples,)
+  - n_folds: int (número de folds, entre 3 y 10)
+Retorno: dict con claves 'accuracy_promedio' y 'confusion_acumulada'
