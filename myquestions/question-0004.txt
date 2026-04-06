@@ -1,0 +1,18 @@
+Dado un DataFrame de pandas con variables numéricas, escribe una función
+llamada reducir_dimensiones(df, n_components) que realice lo siguiente:
+
+1. Elimine las filas que contengan algún valor NaN.
+2. Estandarice las columnas usando StandardScaler de sklearn
+   (media 0, desviación estándar 1).
+3. Aplique PCA de sklearn con n_components componentes sobre los datos
+   estandarizados.
+4. Devuelva una tupla con:
+   - Un DataFrame de pandas con las componentes principales como columnas,
+     nombradas 'PC1', 'PC2', ..., 'PCn' (según n_components), y con el índice
+     reiniciado (reset_index(drop=True)).
+   - Un array de numpy con la varianza explicada por cada componente
+     (atributo explained_variance_ratio_ del PCA).
+
+El nombre de la función debe ser exactamente: reducir_dimensiones
+Argumentos: df (DataFrame de pandas), n_components (int)
+Retorno: tupla (df_pca, varianza_explicada)
