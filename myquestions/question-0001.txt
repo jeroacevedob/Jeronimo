@@ -1,0 +1,16 @@
+Dado un DataFrame de pandas con columnas numéricas y una columna categórica
+llamada 'label', escribe una función llamada entrenar_clasificador(df, label_col)
+que realice lo siguiente:
+
+1. Separe las características numéricas (X) de la variable objetivo (y),
+   definida por label_col.
+2. Elimine filas donde y sea NaN.
+3. Impute los valores faltantes en X usando la mediana de cada columna
+   (usando SimpleImputer de sklearn con strategy='median').
+4. Entrene un clasificador KNeighborsClassifier(n_neighbors=3) de sklearn
+   sobre los datos procesados.
+5. Devuelva el modelo entrenado (objeto KNeighborsClassifier ya ajustado).
+
+El nombre de la función debe ser exactamente: entrenar_clasificador
+Argumentos: df (DataFrame de pandas), label_col (string con el nombre de la columna objetivo)
+Retorno: modelo KNeighborsClassifier entrenado
