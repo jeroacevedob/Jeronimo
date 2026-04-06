@@ -1,0 +1,19 @@
+Escribe una función llamada evaluar_regresion(X, y, test_size) que realice
+lo siguiente:
+
+1. Divida los datos en entrenamiento y prueba usando train_test_split de sklearn
+   con test_size=test_size y random_state=42.
+2. Entrene un modelo LinearRegression de sklearn con los datos de entrenamiento.
+3. Realice predicciones sobre el conjunto de prueba.
+4. Calcule el R2 score (usando r2_score de sklearn.metrics) y el
+   Mean Absolute Error (usando mean_absolute_error de sklearn.metrics)
+   sobre las predicciones del conjunto de prueba.
+5. Devuelva una tupla con (r2, mae) donde ambos son floats redondeados
+   a 4 decimales.
+
+El nombre de la función debe ser exactamente: evaluar_regresion
+Argumentos:
+  - X: array de numpy de shape (n_samples, n_features)
+  - y: array de numpy de shape (n_samples,)
+  - test_size: float entre 0.1 y 0.5
+Retorno: tupla (r2, mae) de floats
